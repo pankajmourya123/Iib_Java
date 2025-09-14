@@ -1,0 +1,339 @@
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TimeZone;
+
+import com.ibm.broker.javacompute.MbJavaComputeNode;
+import com.ibm.broker.plugin.MbElement;
+import com.ibm.broker.plugin.MbException;
+import com.ibm.broker.plugin.MbMessage;
+import com.ibm.broker.plugin.MbMessageAssembly;
+import com.ibm.broker.plugin.MbOutputTerminal;
+import com.ibm.broker.plugin.MbUserException;
+
+public class JavautilGerogriancalendar_JavaCompute extends MbJavaComputeNode {
+
+      class Helper {
+            void add(MbElement parent, String name, Object value) throws MbException {
+            parent.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, name, value == null ? "" : String.valueOf(value));
+            }
+            }
+      
+      public void evaluate(MbMessageAssembly inAssembly) throws MbException {
+            MbOutputTerminal out = getOutputTerminal("out");
+            MbOutputTerminal alt = getOutputTerminal("alternate");
+
+            MbMessage inMessage = inAssembly.getMessage();
+            MbMessageAssembly outAssembly = null;
+            try {
+                  // create new message as a copy of the input
+                  MbMessage outMessage = new MbMessage(inMessage);
+                  outAssembly = new MbMessageAssembly(inAssembly, outMessage);
+                  // ----------------------------------------------------------
+                  // Add user code below
+                   // Create GregorianCalendar instance
+              GregorianCalendar GCcal = new GregorianCalendar();
+              int year = GCcal.get(GregorianCalendar.YEAR);
+              int month = GCcal.get(GregorianCalendar.MONTH) + 1; // 0-based
+              int day = GCcal.get(GregorianCalendar.DAY_OF_MONTH);
+              int hour = GCcal.get(GregorianCalendar.HOUR_OF_DAY);
+              int minute = GCcal.get(GregorianCalendar.MINUTE);
+              
+              
+           // Format current time
+              SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+              SimpleDateFormat sdf2 = new SimpleDateFormat("dd-MM-yyyy");
+              String currentTimeStr = sdf.format(GCcal.getTime());
+              
+           // Set specific date
+              GCcal.set(GregorianCalendar.YEAR, 2025);
+              GCcal.set(GregorianCalendar.MONTH, GregorianCalendar.SEPTEMBER);
+              GCcal.set(GregorianCalendar.DAY_OF_MONTH, 14);
+              String updatedDateStr = sdf.format(GCcal.getTime());
+              
+           // Add 5 days
+              GCcal.add(GregorianCalendar.DAY_OF_MONTH, 5);
+              String afterAddingDaysStr = sdf.format(GCcal.getTime());
+              
+              
+           // Roll month
+              GCcal.roll(GregorianCalendar.MONTH, true);
+              String afterRollingMonthStr = sdf.format(GCcal.getTime());
+              
+              // Min/Max day of month
+              int minDay = GCcal.getMinimum(GregorianCalendar.DAY_OF_MONTH);
+              int maxDay = GCcal.getMaximum(GregorianCalendar.DAY_OF_MONTH);
+              
+              MbElement outRoot=outMessage.getRootElement();
+              MbElement xmlnsc=outRoot.createElementAsLastChild("XMLNSC");
+              MbElement GCcalendar =xmlnsc.createElementAsFirstChild(MbElement.TYPE_NAME,"GregorianCalendar",null);
+              MbElement fields=GCcalendar.createElementAsFirstChild(MbElement.TYPE_NAME,"YEAR",String.valueOf(year));
+              fields.createElementAfter(MbElement.TYPE_NAME_VALUE, "Month", String.valueOf(month))
+              .createElementAfter(MbElement.TYPE_NAME_VALUE, "Day", String.valueOf(day))
+              .createElementAfter(MbElement.TYPE_NAME_VALUE, "Hour", String.valueOf(hour))
+              .createElementAfter(MbElement.TYPE_NAME_VALUE, "Minute", String.valueOf(minute));
+              
+              MbElement limits = GCcalendar.createElementAsLastChild(MbElement.TYPE_NAME, "Limits", null);
+              limits.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "MinDayOfMonth", String.valueOf(minDay));
+              limits.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, "MaxDayOfMonth", String.valueOf(maxDay));
+              
+          
+              MbElement updatedDate = fields.createElementAfter(MbElement.TYPE_NAME_VALUE, "UpdatedDate", updatedDateStr);
+              MbElement currentTime = updatedDate.createElementBefore(MbElement.TYPE_NAME_VALUE, "CurrentTime", currentTimeStr);
+              
+              MbElement afterAddingDays = GCcalendar.createElementAsLastChild(MbElement.TYPE_NAME, "AfterAddingDays", null);
+              MbElement sourceDate = afterAddingDays.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "Date", afterAddingDaysStr);
+              
+              MbElement afterRollingMonth = GCcalendar.createElementAsLastChild(MbElement.TYPE_NAME, "AfterRollingMonth", null);
+              afterRollingMonth.copyElementTree(afterAddingDays);
+              afterRollingMonth.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "Date", afterRollingMonthStr);
+              
+              Helper h = new Helper();
+           // Basic fields (get)
+              h.add(GCcalendar, "Year", GCcal.get(java.util.GregorianCalendar.YEAR));
+              h.add(GCcalendar, "Month", GCcal.get(java.util.GregorianCalendar.MONTH)); // 0-based, keep raw
+              h.add(GCcalendar, "Month_1Based", GCcal.get(java.util.GregorianCalendar.MONTH) + 1);
+              h.add(GCcalendar, "DayOfMonth", GCcal.get(java.util.GregorianCalendar.DAY_OF_MONTH));
+              h.add(GCcalendar, "DayOfWeek", GCcal.get(java.util.GregorianCalendar.DAY_OF_WEEK));
+              h.add(GCcalendar, "DayOfYear", GCcal.get(java.util.GregorianCalendar.DAY_OF_YEAR));
+              h.add(GCcalendar, "WeekOfYear", GCcal.get(java.util.GregorianCalendar.WEEK_OF_YEAR));
+              h.add(GCcalendar, "WeekOfMonth", GCcal.get(java.util.GregorianCalendar.WEEK_OF_MONTH));
+              h.add(GCcalendar, "Hour", GCcal.get(java.util.GregorianCalendar.HOUR));
+              h.add(GCcalendar, "HourOfDay", GCcal.get(java.util.GregorianCalendar.HOUR_OF_DAY));
+              h.add(GCcalendar, "Minute", GCcal.get(java.util.GregorianCalendar.MINUTE));
+              h.add(GCcalendar, "Second", GCcal.get(java.util.GregorianCalendar.SECOND));
+              h.add(GCcalendar, "Millisecond", GCcal.get(java.util.GregorianCalendar.MILLISECOND));
+              h.add(GCcalendar, "AM_PM", GCcal.get(java.util.GregorianCalendar.AM_PM));
+              
+              
+           // get(), minimum/maximum/actual/greatest/least
+              h.add(GCcalendar, "Get_MIN_DAY", GCcal.getMinimum(java.util.GregorianCalendar.DAY_OF_MONTH));
+              h.add(GCcalendar, "Get_MAX_DAY", GCcal.getMaximum(java.util.GregorianCalendar.DAY_OF_MONTH));
+              h.add(GCcalendar, "ActualMinimum_DAY", GCcal.getActualMinimum(java.util.GregorianCalendar.DAY_OF_MONTH));
+              h.add(GCcalendar, "ActualMaximum_DAY", GCcal.getActualMaximum(java.util.GregorianCalendar.DAY_OF_MONTH));
+              h.add(GCcalendar, "GreatestMinimum_DAY", GCcal.getGreatestMinimum(java.util.GregorianCalendar.DAY_OF_MONTH));
+              h.add(GCcalendar, "LeastMaximum_DAY", GCcal.getLeastMaximum(java.util.GregorianCalendar.DAY_OF_MONTH));
+              
+              
+           // Week/year related
+              h.add(GCcalendar, "FirstDayOfWeek", GCcal.getFirstDayOfWeek());
+              h.add(GCcalendar, "MinimalDaysInFirstWeek", GCcal.getMinimalDaysInFirstWeek());
+              h.add(GCcalendar, "WeeksInWeekYear", GCcal.getWeeksInWeekYear());
+              h.add(GCcalendar, "WeekYear", GCcal.getWeekYear());
+              h.add(GCcalendar, "IsWeekDateSupported", GCcal.isWeekDateSupported());
+              h.add(GCcalendar, "IsLeapYear", GCcal.isLeapYear(year));
+              
+              
+           // Set Gregorian change date (this method returns void, so don't pass it as value)
+              Date newDate1 = new Date();
+              GCcal.setGregorianChange(newDate1);
+              h.add(GCcalendar, "GregorianChangeSetTo", sdf2.toString());
+
+              // Get Gregorian change date
+              h.add(GCcalendar, "GregorianChange", GCcal.getGregorianChange().toString());
+
+              // Check if year is leap
+              h.add(GCcalendar, "IsLeapYear", GCcal.isLeapYear(GCcal.get(GCcal.YEAR)));
+
+              // Get week year
+              h.add(GCcalendar, "WeekYear", String.valueOf(GCcal.getWeekYear()));
+
+              // Set week date (requires parameters)
+              GCcal.setWeekDate(GCcal.get(GCcal.YEAR), GCcal.get(GCcal.WEEK_OF_YEAR),GCcal.MONDAY);
+              h.add(GCcalendar, "WeekDateSet", "Year: " + GCcal.get(GCcal.YEAR) + ", Week: " + GCcal.get(GCcal.WEEK_OF_YEAR));
+
+              // Get number of weeks in week year
+              h.add(GCcalendar, "WeeksInWeekYear", String.valueOf(GCcal.getWeeksInWeekYear()));
+
+              
+           // Flags and meta
+              h.add(GCcalendar, "IsLenient", GCcal.isLenient());
+              h.add(GCcalendar, "TimeInMillis", GCcal.getTimeInMillis());
+              
+              
+                 try {
+                  Instant inst = GCcal.toInstant();
+                  h.add(GCcalendar, "ToInstant", inst.toString());
+                  } catch (Exception e) {
+                  h.add(GCcalendar, "ToInstant", "unsupported");
+                  }
+              
+                
+                 h.add(GCcalendar, "GregorianCalendarType", GCcal.getCalendarType());
+                 h.add(GCcalendar, "TimeZone_ID", GCcal.getTimeZone().getID());
+                 h.add(GCcalendar, "TimeZone_DisplayName", GCcal.getTimeZone().getDisplayName(false, java.util.TimeZone.LONG, Locale.ENGLISH));
+                 h.add(GCcalendar, "CurrentTimeFormatted", sdf.format(GCcal.getTime()));
+                 h.add(GCcalendar, "CurrentTimeMillis", System.currentTimeMillis());
+                
+                    try {
+                     Object clone = GCcal.clone();
+                     h.add(GCcalendar, "Clone_ToString", clone == null ? "null" : clone.toString());
+                     } catch (Exception e) {
+                     h.add(GCcalendar, "Clone_ToString", "clone_failed:" + e.getMessage());
+                     }
+                    
+                    
+                    h.add(GCcalendar, "GregorianCalendar_ToString", GCcal.toString());
+                    h.add(GCcalendar, "GregorianCalendar_HashCode", GCcal.hashCode());
+                    
+                    try {
+                          String monthDisplay = GCcal.getDisplayName(java.util.GregorianCalendar.MONTH, java.util.GregorianCalendar.LONG, Locale.ENGLISH);
+                          h.add(GCcalendar, "DisplayName_Month_Long_EN", monthDisplay);
+                          } catch (Exception e) {
+                          h.add(GCcalendar, "DisplayName_Month_Long_EN", "err:" + e.getMessage());
+                          }
+                    
+                    try {
+                          Map<String, Integer> names = GCcal.getDisplayNames(java.util.GregorianCalendar.MONTH, java.util.GregorianCalendar.LONG, Locale.ENGLISH);
+                          if (names != null) {
+                          StringJoiner sj = new StringJoiner(",");
+                          for (Map.Entry<String, Integer> en : names.entrySet()) {
+                          sj.add(en.getKey() + "=" + en.getValue());
+                          }
+                          h.add(GCcalendar, "DisplayNames_Month_Long_EN", sj.toString());
+                          } else {
+                          h.add(GCcalendar, "DisplayNames_Month_Long_EN", "");
+                          }
+                          } catch (Exception e) {
+                          h.add(GCcalendar, "DisplayNames_Month_Long_EN", "err:" + e.getMessage());
+                          }
+                    
+                    
+                 // getAvailableLoGCcales and getAvailableGregorianCalendarTypes
+                    try {
+                    Locale[] locs = java.util.GregorianCalendar.getAvailableLocales();
+                    StringJoiner sj = new StringJoiner(",");
+                    for (Locale L : locs) sj.add(L.toString());
+                    h.add(GCcalendar, "AvailableLoGCcales", sj.toString());
+                    } catch (Exception e) {
+                    h.add(GCcalendar, "AvailableLoGCcales", "err");
+                    }
+                
+                    
+                      try {
+                          Set<String> types = java.util.GregorianCalendar.getAvailableCalendarTypes();
+                          StringJoiner sj = new StringJoiner(",");
+                          for (String s : types) sj.add(s);
+                          h.add(GCcalendar, "AvailableGregorianCalendarTypes", sj.toString());
+                          } catch (Exception e) {
+                          h.add(GCcalendar, "AvailableGregorianCalendarTypes", "err");
+                          }
+                    
+                      try {
+                        TimeZone tz = GCcal.getTimeZone();
+                        h.add(GCcalendar, "TimeZone_DisplayName_SHORT", tz.getDisplayName(false, java.util.TimeZone.SHORT, Locale.ENGLISH));
+                        h.add(GCcalendar, "TimeZone_RawOffset", tz.getRawOffset());
+                        h.add(GCcalendar, "TimeZone_UseDaylightSavings", tz.useDaylightTime());
+                        } catch (Exception e) {
+                        h.add(GCcalendar, "TimeZone_Info_Err", e.getMessage());
+                        }  
+                      h.add(GCcalendar, "IsSet_YEAR", GCcal.isSet(java.util.GregorianCalendar.YEAR));
+                      h.add(GCcalendar, "IsSet_MONTH", GCcal.isSet(java.util.GregorianCalendar.MONTH));
+                      h.add(GCcalendar, "IsSet_DAY_OF_MONTH", GCcal.isSet(java.util.GregorianCalendar.DAY_OF_MONTH));
+                      
+                   // Demonstrate add() and roll()
+                      try {
+                      java.util.GregorianCalendar tmpAdd = (java.util.GregorianCalendar) GCcal.clone();
+                      tmpAdd.add(java.util.GregorianCalendar.DAY_OF_MONTH, 5);
+                      h.add(GCcalendar, "AfterAdd_5Days", sdf.format(tmpAdd.getTime()));
+
+                      java.util.GregorianCalendar tmpRoll = (java.util.GregorianCalendar) GCcal.clone();
+                      tmpRoll.roll(java.util.GregorianCalendar.MONTH, 1); // roll forward one month
+                      h.add(GCcalendar, "AfterRoll_Month_plus1", sdf.format(tmpRoll.getTime()));
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "AddOrRoll_Error", e.getMessage());
+                      }
+                      
+                      
+                   // getTime, setTime (show usage - setTime used on a copy so original GCcal unchanged)
+                      try {
+                      Date t = GCcal.getTime();
+                      h.add(GCcalendar, "GetTime_AsDate", t.toString());
+
+                      java.util.GregorianCalendar tmp = (java.util.GregorianCalendar) GCcal.clone();
+                      Date newDate = new Date(t.getTime() + 86400000L); // +1 day
+                      tmp.setTime(newDate);
+                      h.add(GCcalendar, "SetTime_plus1Day", sdf.format(tmp.getTime()));
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "GetSetTime_Error", e.getMessage());
+                      }
+                      
+                   // setTimeInMillis / getTimeInMillis demo
+                      try {
+                      long millis = GCcal.getTimeInMillis();
+                      h.add(GCcalendar, "GetTimeInMillis", millis);
+                      java.util.GregorianCalendar tmp2 = (java.util.GregorianCalendar) GCcal.clone();
+                      tmp2.setTimeInMillis(millis + 3600000L); // +1 hour
+                      h.add(GCcalendar, "SetTimeInMillis_plus1Hour", sdf.format(tmp2.getTime()));
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "TimeMillis_Error", e.getMessage());
+                      }
+                  
+                      
+                   // setFirstDayOfWeek, setMinimalDaysInFirstWeek representation (we will show current values)
+                      try {
+                      h.add(GCcalendar, "FirstDayOfWeek_Current", GCcal.getFirstDayOfWeek());
+                      h.add(GCcalendar, "MinimalDaysInFirstWeek_Current", GCcal.getMinimalDaysInFirstWeek());
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "FirstDay_MinDays_Error", e.getMessage());
+                      }
+                      
+                   // getClass (useful as string)
+                      try {
+                      h.add(GCcalendar, "getClass", GCcal.getClass().getName());
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "getClass_Error", e.getMessage());
+                      }
+                      
+                   // getDisplayName for DAY_OF_WEEK short/long
+                      try {
+                      String dayLong = GCcal.getDisplayName(java.util.GregorianCalendar.DAY_OF_WEEK, java.util.GregorianCalendar.LONG, Locale.ENGLISH);
+                      String dayShort = GCcal.getDisplayName(java.util.GregorianCalendar.DAY_OF_WEEK, java.util.GregorianCalendar.SHORT, Locale.ENGLISH);
+                      h.add(GCcalendar, "DayOfWeek_Display_Long_EN", dayLong);
+                      h.add(GCcalendar, "DayOfWeek_Display_Short_EN", dayShort);
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "DayDisplay_Error", e.getMessage());
+                      }
+                      
+                      
+                      
+                   // getMinimalDaysInFirstWeek()
+                      try {
+                      h.add(GCcalendar, "getMinimalDaysInFirstWeek", GCcal.getMinimalDaysInFirstWeek());
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "getMinimalDaysInFirstWeek_Error", e.getMessage());
+                      }
+                      
+                   // Arrays / Lists: show days in week names (LoGCcale EN)
+                      try {
+                      String[] dayNames = new java.text.DateFormatSymbols(Locale.ENGLISH).getWeekdays();
+                      StringJoiner sjd = new StringJoiner(",");
+                      // weekdays array has empty at index 0, then SUNDAY=1...
+                      for (int i = 1; i < dayNames.length; i++) {
+                      sjd.add(i + ":" + dayNames[i]);
+                      }
+                      h.add(GCcalendar, "Weekday_Names_EN", sjd.toString());
+
+                      String[] monthNames = new java.text.DateFormatSymbols(Locale.ENGLISH).getMonths();
+                      StringJoiner sjm = new StringJoiner(",");
+                      for (int i = 0; i < monthNames.length; i++) {
+                      if (monthNames[i] != null && monthNames[i].length() > 0) sjm.add(i + ":" + monthNames[i]);
+                      }
+                      h.add(GCcalendar, "Month_Names_EN", sjm.toString());
+                      } catch (Exception e) {
+                      h.add(GCcalendar, "WeekdayOrMonthNames_Error", e.getMessage());
+                      }
+                      
+                      
+                      
+             MbElement constants = GCcalendar.createElementAsLastChild(MbElement.TYPE_NAME, "Constants", null);
+              h.add(constants, "JANUARY", java.util.GregorianCalendar.JANUARY);
+              h.add(constants, "FEBRUARY", java.util.GregorianCalendar.FEBRUARY);
+              h.add(constants, "MARCH", java.util.GregorianCalendar.MARCH);
+              h.add(constants, "APRIL", java.util.GregorianCalendar.APRIL);
+              h.add(constants,
