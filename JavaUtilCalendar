@@ -1,0 +1,275 @@
+add(int field, int amount): void - Calendar
+
+String
+
+after(Object when): boolean - Calendar
+
+before(Object when): boolean - Calendar
+
+// Set spe
+
+clear(): void - Calendar
+
+cal.set
+
+clear(int field): void - Calendar
+
+cal.set
+
+clone(): Object - Calendar
+
+compareTo(Calendar anotherCalendar): int Calendar
+
+⚫equals(Object obj): boolean - Calendar
+
+get(int field): int Calendar
+
+getActualMaximum (int field): int - Calendar
+getActualMinimum (int field): int - Calendar
+
+getCalendarType(): String - Calendar
+
+getClass(): Class<? extends Object> - Object
+
+getDisplayName(int field, int style, Locale locale) : String - Caler
+
+getDisplayNames(int field, int style, Locale locale): Map<String,
+
+getFirstDayOfWeek(): int - Calendar
+
+getGreatestMinimum (int field): int - Calendar
+
+getLeastMaximum(int fiel: int Calendar
+
+getMaximum(int field): int Calendar
+getMinimalDaysInFirstWeek(): int - Calendar
+
+getMinimum(int field): int - Calendar
+
+//
+
+Set spe
+
+getTime(): Date -Nalendar
+
+cal.set
+
+cal.set
+
+getTimelnMillis(): long - Calendar
+
+get TimeZone(): TimeZone - Calendar
+
+getWeeksInWeekYear(): int - Calendar
+
+Properties Problems
+
+getWeekYear(): int - Calendar
+
+hashCode(): int Calendar
+
+isLenient(): boolean Calendar
+islenient(): boolean - Calendar
+
+String
+
+isSet(int field): boolean - Calendar
+
+// Set spe
+
+isWeekDateSupported(): boolean - Calendar
+
+cal.set
+
+notify(): void - Object
+
+cal.set
+
+⚫notifyAll(): void - Object
+
+roll(int field, boolean up): void - Calendar
+
+roll(int field, int amount): void - Calendar
+
+set(int field, int value): void - Calendar
+
+set(int year, int month, int date): void - Calendar
+
+set(int year, int month, int date, int hourOfDay, int minute): void
+set(int year, int month, int date, int hourOfDay, int minute, int s
+
+String
+
+setFirstDayOfWeek(int value): void - Calendar
+
+setLenient(boolean lenient): void - Calendar
+
+//
+
+Set
+
+spe
+
+setMinimalDaysInFirstWeek(int value) : void - Calendar
+
+cal.set
+
+setTime(Date date): void - Calendar
+
+cal.set
+
+setTimelnMillis(long millis): void - Calendar
+
+setTimeZone (TimeZone value): void - Calendar
+
+Properties
+
+Problems
+
+setWeekDate(int weekYear, int weekOfYear, int dayOfWeek): voi
+
+tolnstant(): Instant - Calendar
+
+toString(): String - Calendar
+
+
+wait(): void Object
+
+String
+
+wait(long time): void - Object
+
+wait(long time, int frac): void - Object
+
+ALL_STYLES : int - Calendar
+
+
+AM: int - Calendar
+
+
+AM_PM: int - Calendar
+
+APRIL: int - Calendar
+
+AUGUST: int - Calendar
+ DATE: int - Calendar
+DAY_OF_MONTH : int - Calendar
+
+ DAY_OF_WEEK: int - Calendar
+
+
+ DAY_OF_WEEK_IN_MONTH : int - Calendar
+
+ DAY_OF_YEAR: int - Calendar
+
+DECEMBER: int - Calendar
+
+
+
+DST OFFSET: int - Calendar
+
+
+
+ERA: int - Calendar
+FEBRUARY: int - Calendar
+
+
+
+FIELD_COUNT: int - Calendar
+
+FFRIDAY: int - Calendar
+
+HOUR: int Calendar
+
+ HOUR: int - Calendar
+
+
+
+ HOUR_OF_DAY: int - Calendar
+
+JANUARY: int - Calendar
+
+
+
+JULY: int - Calendar
+
+
+
+JUNE: int - Calendar
+
+
+
+
+ LONG: int Calendar
+
+ LONG_FORMAT: int - Calendar
+
+
+
+ LONG STANDALONE: int - Calendar
+
+MARCH: int - Calendar
+
+
+
+MAY: int Calendar
+
+MILLISECOND: int - Calendar
+
+& MINUTE: int - Calendar
+
+&F MONDAY: int - Calendar
+
+FMONTH: int - Calendar
+
+SF NARROW_FORMAT: int - Calendar
+
+SF NARROW_STANDALONE: int-Calendar
+
+FNOVEMBER: int-Calendar
+
+SF
+
+OCTOBER: int - Calendar
+
+PM: int Calendar
+
+SATURDAY: int - Calendar
+& SECOND: int - Calendar
+
+ SEPTEMBER: int - Calendar
+
+SHORT: int - Calendar
+
+SHORT_FORMAT: int - Calendar
+
+ SHORT_STANDALONE: int Calendar
+
+SUNDAY: int - Calendar
+
+ THURSDAY: int Calendar
+
+ TUESDAY: int - Calendar
+
+UNDECIMBER: int -
+WEDNESDAY: int - Calendar
+
+ WEEK_OF_MONTH : int - Calendar
+
+ WEEK_OF_YEAR: int - Calendar
+
+YEAR: int - Calendar
+
+ZONE_OFFSET: int - Calendar
+
+
+
+getAvailableCalendar Types(): Set<String> - Calendar
+
+getAvailableLocales(): Locale[] - Calendar
+
+getInstance(): Calendar - Calendar
+
+getInstance(Locale aLocale): Calendar - Calendar
+
+getInstance(TimeZone zone): Calendar -
