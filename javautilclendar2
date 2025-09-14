@@ -1,0 +1,231 @@
+=========================================
+CALENDAR CLASS - METHODS & CONSTANTS NOTES
+=========================================
+
+Java Calendar Class – Reference Document
+
+1. Introduction
+
+Package: java.util
+
+Type: Abstract class (extends Object, implements Serializable, Cloneable, Comparable<Calendar>)
+
+Usage:
+Calendar ek date–time abstraction hai jo year, month, day, hour, minute, second jaise fields ke saath kaam karta hai.
+Locales aur time zones ke hisaab se adjust karne ke liye use hota hai.
+
+
+
+---
+
+2. Object Creation
+
+Calendar cal = Calendar.getInstance(); // Default locale & timezone
+Calendar cal = Calendar.getInstance(TimeZone tz);
+Calendar cal = Calendar.getInstance(Locale locale);
+
+
+---
+
+3. Important Fields / Constants
+
+Months
+
+JANUARY (0) → DECEMBER (11)
+⚠️ Month 0-based hota hai.
+
+
+Days of Week
+
+SUNDAY (1) → SATURDAY (7)
+
+
+AM/PM
+
+AM (0), PM (1)
+
+
+Other
+
+HOUR, HOUR_OF_DAY, MINUTE, SECOND, MILLISECOND
+
+DAY_OF_MONTH, DAY_OF_WEEK, DAY_OF_YEAR
+
+WEEK_OF_MONTH, WEEK_OF_YEAR
+
+ZONE_OFFSET, DST_OFFSET
+
+1) add(int field, int amount): void
+   - Kisi specific field (YEAR, MONTH, DATE, etc.) me amount add karta hai.
+   - Overflow adjust hota hai (31 Jan + 1 month = 28/29 Feb).
+
+2) after(Object when): boolean
+   - Check karta hai ki current Calendar given object se baad me hai ya nahi.
+
+3) before(Object when): boolean
+   - Check karta hai ki current Calendar given object se pehle hai ya nahi.
+
+4) clear(): void
+   - Calendar ke saare fields reset kar deta hai (unset state).
+
+5) clear(int field): void
+   - Sirf ek specific field clear karta hai.
+
+6) clone(): Object
+   - Calendar ka ek deep copy banata hai.
+
+7) compareTo(Calendar anotherCalendar): int
+   - Current Calendar ko another se compare karta hai.
+   - Return <0, 0, >0.
+
+8) equals(Object obj): boolean
+   - Compare karta hai ki do Calendar objects ka time & zone equal hai ya nahi.
+
+9) get(int field): int
+   - Given field (YEAR, MONTH, DAY_OF_MONTH, etc.) ka value return karta hai.
+
+10) getActualMaximum(int field): int
+    - Current context ke hisaab se max value deta hai (Feb → 28/29).
+
+11) getActualMinimum(int field): int
+    - Current context ke hisaab se min value deta hai.
+
+12) getCalendarType(): String
+    - Calendar ka type return karta hai (e.g. "gregory").
+
+13) getClass(): Class
+    - Runtime class ka object deta hai.
+
+14) getDisplayName(int field, int style, Locale locale): String
+    - Field ka readable naam return karta hai (e.g. MONDAY).
+
+15) getDisplayNames(int field, int style, Locale locale): Map
+    - Possible display names ka map return karta hai.
+
+16) getFirstDayOfWeek(): int
+    - Locale ke hisaab se week ka start day return karta hai.
+
+17) getGreatestMinimum(int field): int
+    - Sabse bada minimum jo kisi field ke liye valid hai.
+
+18) getLeastMaximum(int field): int
+    - Sabse chhota maximum jo kisi field ke liye valid hai.
+
+19) getMaximum(int field): int
+    - Field ke liye max value (general).
+
+20) getMinimalDaysInFirstWeek(): int
+    - Week 1 ke liye required minimum days.
+
+21) getMinimum(int field): int
+    - Field ke liye general minimum value.
+
+22) getTime(): Date
+    - Calendar ka current Date object return karta hai.
+
+23) getTimeInMillis(): long
+    - Epoch milliseconds (Jan 1, 1970 se) return karta hai.
+
+24) getTimeZone(): TimeZone
+    - Current Calendar ka timezone return karta hai.
+
+25) getWeeksInWeekYear(): int
+    - Current week-year me kitne weeks hain return karta hai.
+
+26) getWeekYear(): int
+    - ISO week-based year return karta hai.
+
+27) hashCode(): int
+    - Calendar ka hash code deta hai (equals ke saath consistent).
+
+28) isLenient(): boolean
+    - Calendar lenient hai ya strict.
+    - Lenient true → invalid dates auto adjust.
+    - Lenient false → error throw.
+
+29) isSet(int field): boolean
+    - Check karta hai ki field explicitly set hai ya nahi.
+
+30) isWeekDateSupported(): boolean
+    - Check karta hai ki week-date fields supported hain ya nahi.
+
+31) notify(): void
+    - Object method (thread notify) – rarely use.
+
+32) notifyAll(): void
+    - Object method (thread notify all).
+
+33) roll(int field, boolean up): void
+    - Field ko 1 step roll karta hai.
+    - Overflow dusre fields ko affect nahi karta.
+
+34) roll(int field, int amount): void
+    - Field ko given amount roll karta hai without affecting others.
+
+35) set(int field, int value): void
+    - Specific field set karta hai.
+
+36) set(int year, int month, int date): void
+    - Year, Month, Date set karta hai.
+
+37) set(int year, int month, int date, int hourOfDay, int minute): void
+    - Year, Month, Date, Hour, Minute set karta hai.
+
+38) set(int year, int month, int date, int hourOfDay, int minute, int second): void
+    - Year, Month, Date, Hour, Minute, Second set karta hai.
+
+39) setFirstDayOfWeek(int value): void
+    - Week ka pehla din set karta hai (e.g. MONDAY).
+
+40) setLenient(boolean lenient): void
+    - Calendar ko lenient/strict banata hai.
+
+41) setMinimalDaysInFirstWeek(int value): void
+    - Week 1 ke liye minimum days set karta hai.
+
+42) setTime(Date date): void
+    - Calendar ka time ek Date se set karta hai.
+
+43) setTimeInMillis(long millis): void
+    - Epoch milliseconds se Calendar set karta hai.
+
+44) setTimeZone(TimeZone value): void
+    - Calendar ka timezone set karta hai.
+
+45) setWeekDate(int weekYear, int weekOfYear, int dayOfWeek): void
+    - Week-year format se Calendar set karta hai.
+
+46) toInstant(): Instant
+    - Calendar ka Instant representation return karta hai.
+
+47) toString(): String
+    - Calendar ka string representation deta hai.
+
+48) wait(): void
+    - Object method, thread wait.
+
+49) wait(long time): void
+    - Object method, timed wait.
+
+50) wait(long time, int nanos): void
+    - Object method, timed wait with nanos.
+
+------------------------------------------------
+CONSTANTS NOTES
+------------------------------------------------
+- ALL_STYLES: Style ke liye flag.
+- AM, PM: Day half indicators.
+- MONTHS: JANUARY (0) → DECEMBER (11), UNDECIMBER (12).
+- DAYS: SUNDAY → SATURDAY.
+- DATE, DAY_OF_MONTH, DAY_OF_YEAR, WEEK_OF_MONTH, WEEK_OF_YEAR:
+  Different date tracking constants.
+- ERA: BC/AD.
+- HOUR, HOUR_OF_DAY, MINUTE, SECOND, MILLISECOND: Time units.
+- ZONE_OFFSET, DST_OFFSET: Time zone adjustments.
+- FIELD_COUNT: Total supported fields.
+- Styles: SHORT, LONG, NARROW + FORMAT / STANDALONE variations.
+- getAvailableCalendarTypes(): Supported calendar types ka set.
+- getAvailableLocales(): All supported locales.
+- getInstance(): Default Calendar instance.
+- getInstance(Locale): Locale-specific Calendar.
+- getInstance(TimeZone): Zone-specific Calendar.
