@@ -1,0 +1,428 @@
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TimeZone;
+
+import com.ibm.broker.javacompute.MbJavaComputeNode;
+import com.ibm.broker.plugin.MbElement;
+import com.ibm.broker.plugin.MbException;
+import com.ibm.broker.plugin.MbMessage;
+import com.ibm.broker.plugin.MbMessageAssembly;
+import com.ibm.broker.plugin.MbOutputTerminal;
+import com.ibm.broker.plugin.MbUserException;
+
+public class CALENDARFLOW_JavaCompute extends MbJavaComputeNode {
+	
+	class Helper {
+		void add(MbElement parent, String name, Object value) throws MbException {
+		parent.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, name, value == null ? "" : String.valueOf(value));
+		}
+		}
+	
+	public void evaluate(MbMessageAssembly inAssembly) throws MbException {
+		MbOutputTerminal out = getOutputTerminal("out");
+		MbOutputTerminal alt = getOutputTerminal("alternate");
+
+		MbMessage inMessage = inAssembly.getMessage();
+		MbMessageAssembly outAssembly = null;
+		try {
+			// create new message as a copy of the input
+			MbMessage outMessage = new MbMessage(inMessage);
+			outAssembly = new MbMessageAssembly(inAssembly, outMessage);
+			// ----------------------------------------------------------
+			// Add user code below
+			 // Create Calendar instance
+	        Calendar cal = Calendar.getInstance();
+	        int year = cal.get(Calendar.YEAR);
+	        int month = cal.get(Calendar.MONTH) + 1; // 0-based
+	        int day = cal.get(Calendar.DAY_OF_MONTH);
+	        int hour = cal.get(Calendar.HOUR_OF_DAY);
+	        int minute = cal.get(Calendar.MINUTE);
+	        
+	     // Format current time
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+	        String currentTimeStr = sdf.format(cal.getTime());
+	        
+	     // Set specific date
+	        cal.set(Calendar.YEAR, 2025);
+	        cal.set(Calendar.MONTH, Calendar.SEPTEMBER);
+	        cal.set(Calendar.DAY_OF_MONTH, 14);
+	        String updatedDateStr = sdf.format(cal.getTime());
+	        
+	     // Add 5 days
+	        cal.add(Calendar.DAY_OF_MONTH, 5);
+	        String afterAddingDaysStr = sdf.format(cal.getTime());
+	        
+	        
+	     // Roll month
+	        cal.roll(Calendar.MONTH, true);
+	        String afterRollingMonthStr = sdf.format(cal.getTime());
+	        
+	        // Min/Max day of month
+	        int minDay = cal.getMinimum(Calendar.DAY_OF_MONTH);
+	        int maxDay = cal.getMaximum(Calendar.DAY_OF_MONTH);
+	        
+	        MbElement outRoot=outMessage.getRootElement();
+	        MbElement xmlnsc=outRoot.createElementAsLastChild("XMLNSC");
+	        MbElement calendar =xmlnsc.createElementAsFirstChild(MbElement.TYPE_NAME,"Calendar",null);
+	        MbElement fields=calendar.createElementAsFirstChild(MbElement.TYPE_NAME,"YEAR",String.valueOf(year));
+	        fields.createElementAfter(MbElement.TYPE_NAME_VALUE, "Month", String.valueOf(month))
+	        .createElementAfter(MbElement.TYPE_NAME_VALUE, "Day", String.valueOf(day))
+	        .createElementAfter(MbElement.TYPE_NAME_VALUE, "Hour", String.valueOf(hour))
+	        .createElementAfter(MbElement.TYPE_NAME_VALUE, "Minute", String.valueOf(minute));
+	        
+	        MbElement limits = calendar.createElementAsLastChild(MbElement.TYPE_NAME, "Limits", null);
+	        limits.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "MinDayOfMonth", String.valueOf(minDay));
+	        limits.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, "MaxDayOfMonth", String.valueOf(maxDay));
+	        
+	    
+	        MbElement updatedDate = fields.createElementAfter(MbElement.TYPE_NAME_VALUE, "UpdatedDate", updatedDateStr);
+	        MbElement currentTime = updatedDate.createElementBefore(MbElement.TYPE_NAME_VALUE, "CurrentTime", currentTimeStr);
+	        
+	        MbElement afterAddingDays = calendar.createElementAsLastChild(MbElement.TYPE_NAME, "AfterAddingDays", null);
+	        MbElement sourceDate = afterAddingDays.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "Date", afterAddingDaysStr);
+	        
+	        MbElement afterRollingMonth = calendar.createElementAsLastChild(MbElement.TYPE_NAME, "AfterRollingMonth", null);
+	        afterRollingMonth.copyElementTree(afterAddingDays);
+	        afterRollingMonth.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "Date", afterRollingMonthStr);
+	        
+	        Helper h = new Helper();
+	     // Basic fields (get)
+	        h.add(calendar, "Year", cal.get(java.util.Calendar.YEAR));
+	        h.add(calendar, "Month", cal.get(java.util.Calendar.MONTH)); // 0-based, keep raw
+	        h.add(calendar, "Month_1Based", cal.get(java.util.Calendar.MONTH) + 1);
+	        h.add(calendar, "DayOfMonth", cal.get(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(calendar, "DayOfWeek", cal.get(java.util.Calendar.DAY_OF_WEEK));
+	        h.add(calendar, "DayOfYear", cal.get(java.util.Calendar.DAY_OF_YEAR));
+	        h.add(calendar, "WeekOfYear", cal.get(java.util.Calendar.WEEK_OF_YEAR));
+	        h.add(calendar, "WeekOfMonth", cal.get(java.util.Calendar.WEEK_OF_MONTH));
+	        h.add(calendar, "Hour", cal.get(java.util.Calendar.HOUR));
+	        h.add(calendar, "HourOfDay", cal.get(java.util.Calendar.HOUR_OF_DAY));
+	        h.add(calendar, "Minute", cal.get(java.util.Calendar.MINUTE));
+	        h.add(calendar, "Second", cal.get(java.util.Calendar.SECOND));
+	        h.add(calendar, "Millisecond", cal.get(java.util.Calendar.MILLISECOND));
+	        h.add(calendar, "AM_PM", cal.get(java.util.Calendar.AM_PM));
+	        
+	        
+	     // get(), minimum/maximum/actual/greatest/least
+	        h.add(calendar, "Get_MIN_DAY", cal.getMinimum(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(calendar, "Get_MAX_DAY", cal.getMaximum(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(calendar, "ActualMinimum_DAY", cal.getActualMinimum(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(calendar, "ActualMaximum_DAY", cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(calendar, "GreatestMinimum_DAY", cal.getGreatestMinimum(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(calendar, "LeastMaximum_DAY", cal.getLeastMaximum(java.util.Calendar.DAY_OF_MONTH));
+	        
+	        
+	     // Week/year related
+	        h.add(calendar, "FirstDayOfWeek", cal.getFirstDayOfWeek());
+	        h.add(calendar, "MinimalDaysInFirstWeek", cal.getMinimalDaysInFirstWeek());
+	        h.add(calendar, "WeeksInWeekYear", cal.getWeeksInWeekYear());
+	        h.add(calendar, "WeekYear", cal.getWeekYear());
+	        h.add(calendar, "IsWeekDateSupported", cal.isWeekDateSupported());
+	        
+	     // Flags and meta
+	        h.add(calendar, "IsLenient", cal.isLenient());
+	        h.add(calendar, "TimeInMillis", cal.getTimeInMillis());
+	        
+	        
+	           try {
+	        	Instant inst = cal.toInstant();
+	        	h.add(calendar, "ToInstant", inst.toString());
+	        	} catch (Exception e) {
+	        	h.add(calendar, "ToInstant", "unsupported");
+	        	}
+	        
+	           
+	           h.add(calendar, "CalendarType", cal.getCalendarType());
+	           h.add(calendar, "TimeZone_ID", cal.getTimeZone().getID());
+	           h.add(calendar, "TimeZone_DisplayName", cal.getTimeZone().getDisplayName(false, java.util.TimeZone.LONG, Locale.ENGLISH));
+	           h.add(calendar, "CurrentTimeFormatted", sdf.format(cal.getTime()));
+	           h.add(calendar, "CurrentTimeMillis", System.currentTimeMillis());
+	           
+	              try {
+	        	   Object clone = cal.clone();
+	        	   h.add(calendar, "Clone_ToString", clone == null ? "null" : clone.toString());
+	        	   } catch (Exception e) {
+	        	   h.add(calendar, "Clone_ToString", "clone_failed:" + e.getMessage());
+	        	   }
+	              
+	              
+	              h.add(calendar, "Calendar_ToString", cal.toString());
+	              h.add(calendar, "Calendar_HashCode", cal.hashCode());
+	              
+	              try {
+	            	  String monthDisplay = cal.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, Locale.ENGLISH);
+	            	  h.add(calendar, "DisplayName_Month_Long_EN", monthDisplay);
+	            	  } catch (Exception e) {
+	            	  h.add(calendar, "DisplayName_Month_Long_EN", "err:" + e.getMessage());
+	            	  }
+	              
+	              try {
+	            	  Map<String, Integer> names = cal.getDisplayNames(java.util.Calendar.MONTH, java.util.Calendar.LONG, Locale.ENGLISH);
+	            	  if (names != null) {
+	            	  StringJoiner sj = new StringJoiner(",");
+	            	  for (Map.Entry<String, Integer> en : names.entrySet()) {
+	            	  sj.add(en.getKey() + "=" + en.getValue());
+	            	  }
+	            	  h.add(calendar, "DisplayNames_Month_Long_EN", sj.toString());
+	            	  } else {
+	            	  h.add(calendar, "DisplayNames_Month_Long_EN", "");
+	            	  }
+	            	  } catch (Exception e) {
+	            	  h.add(calendar, "DisplayNames_Month_Long_EN", "err:" + e.getMessage());
+	            	  }
+	              
+	              
+	           // getAvailableLocales and getAvailableCalendarTypes
+	              try {
+	              Locale[] locs = java.util.Calendar.getAvailableLocales();
+	              StringJoiner sj = new StringJoiner(",");
+	              for (Locale L : locs) sj.add(L.toString());
+	              h.add(calendar, "AvailableLocales", sj.toString());
+	              } catch (Exception e) {
+	              h.add(calendar, "AvailableLocales", "err");
+	              }
+	           
+	              
+	                try {
+	            	  Set<String> types = java.util.Calendar.getAvailableCalendarTypes();
+	            	  StringJoiner sj = new StringJoiner(",");
+	            	  for (String s : types) sj.add(s);
+	            	  h.add(calendar, "AvailableCalendarTypes", sj.toString());
+	            	  } catch (Exception e) {
+	            	  h.add(calendar, "AvailableCalendarTypes", "err");
+	            	  }
+	              
+	                try {
+	                	TimeZone tz = cal.getTimeZone();
+	                	h.add(calendar, "TimeZone_DisplayName_SHORT", tz.getDisplayName(false, java.util.TimeZone.SHORT, Locale.ENGLISH));
+	                	h.add(calendar, "TimeZone_RawOffset", tz.getRawOffset());
+	                	h.add(calendar, "TimeZone_UseDaylightSavings", tz.useDaylightTime());
+	                	} catch (Exception e) {
+	                	h.add(calendar, "TimeZone_Info_Err", e.getMessage());
+	                	}  
+	                h.add(calendar, "IsSet_YEAR", cal.isSet(java.util.Calendar.YEAR));
+	                h.add(calendar, "IsSet_MONTH", cal.isSet(java.util.Calendar.MONTH));
+	                h.add(calendar, "IsSet_DAY_OF_MONTH", cal.isSet(java.util.Calendar.DAY_OF_MONTH));
+	                
+	             // Demonstrate add() and roll()
+	                try {
+	                java.util.Calendar tmpAdd = (java.util.Calendar) cal.clone();
+	                tmpAdd.add(java.util.Calendar.DAY_OF_MONTH, 5);
+	                h.add(calendar, "AfterAdd_5Days", sdf.format(tmpAdd.getTime()));
+
+	                java.util.Calendar tmpRoll = (java.util.Calendar) cal.clone();
+	                tmpRoll.roll(java.util.Calendar.MONTH, 1); // roll forward one month
+	                h.add(calendar, "AfterRoll_Month_plus1", sdf.format(tmpRoll.getTime()));
+	                } catch (Exception e) {
+	                h.add(calendar, "AddOrRoll_Error", e.getMessage());
+	                }
+	                
+	                
+	             // getTime, setTime (show usage - setTime used on a copy so original cal unchanged)
+	                try {
+	                Date t = cal.getTime();
+	                h.add(calendar, "GetTime_AsDate", t.toString());
+
+	                java.util.Calendar tmp = (java.util.Calendar) cal.clone();
+	                Date newDate = new Date(t.getTime() + 86400000L); // +1 day
+	                tmp.setTime(newDate);
+	                h.add(calendar, "SetTime_plus1Day", sdf.format(tmp.getTime()));
+	                } catch (Exception e) {
+	                h.add(calendar, "GetSetTime_Error", e.getMessage());
+	                }
+	                
+	             // setTimeInMillis / getTimeInMillis demo
+	                try {
+	                long millis = cal.getTimeInMillis();
+	                h.add(calendar, "GetTimeInMillis", millis);
+	                java.util.Calendar tmp2 = (java.util.Calendar) cal.clone();
+	                tmp2.setTimeInMillis(millis + 3600000L); // +1 hour
+	                h.add(calendar, "SetTimeInMillis_plus1Hour", sdf.format(tmp2.getTime()));
+	                } catch (Exception e) {
+	                h.add(calendar, "TimeMillis_Error", e.getMessage());
+	                }
+	             
+	                
+	             // setFirstDayOfWeek, setMinimalDaysInFirstWeek representation (we will show current values)
+	                try {
+	                h.add(calendar, "FirstDayOfWeek_Current", cal.getFirstDayOfWeek());
+	                h.add(calendar, "MinimalDaysInFirstWeek_Current", cal.getMinimalDaysInFirstWeek());
+	                } catch (Exception e) {
+	                h.add(calendar, "FirstDay_MinDays_Error", e.getMessage());
+	                }
+	                
+	             // getClass (useful as string)
+	                try {
+	                h.add(calendar, "getClass", cal.getClass().getName());
+	                } catch (Exception e) {
+	                h.add(calendar, "getClass_Error", e.getMessage());
+	                }
+	                
+	             // getDisplayName for DAY_OF_WEEK short/long
+	                try {
+	                String dayLong = cal.getDisplayName(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.LONG, Locale.ENGLISH);
+	                String dayShort = cal.getDisplayName(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SHORT, Locale.ENGLISH);
+	                h.add(calendar, "DayOfWeek_Display_Long_EN", dayLong);
+	                h.add(calendar, "DayOfWeek_Display_Short_EN", dayShort);
+	                } catch (Exception e) {
+	                h.add(calendar, "DayDisplay_Error", e.getMessage());
+	                }
+	                
+	                
+	                
+	             // getMinimalDaysInFirstWeek()
+	                try {
+	                h.add(calendar, "getMinimalDaysInFirstWeek", cal.getMinimalDaysInFirstWeek());
+	                } catch (Exception e) {
+	                h.add(calendar, "getMinimalDaysInFirstWeek_Error", e.getMessage());
+	                }
+	                
+	             // Arrays / Lists: show days in week names (Locale EN)
+	                try {
+	                String[] dayNames = new java.text.DateFormatSymbols(Locale.ENGLISH).getWeekdays();
+	                StringJoiner sjd = new StringJoiner(",");
+	                // weekdays array has empty at index 0, then SUNDAY=1...
+	                for (int i = 1; i < dayNames.length; i++) {
+	                sjd.add(i + ":" + dayNames[i]);
+	                }
+	                h.add(calendar, "Weekday_Names_EN", sjd.toString());
+
+	                String[] monthNames = new java.text.DateFormatSymbols(Locale.ENGLISH).getMonths();
+	                StringJoiner sjm = new StringJoiner(",");
+	                for (int i = 0; i < monthNames.length; i++) {
+	                if (monthNames[i] != null && monthNames[i].length() > 0) sjm.add(i + ":" + monthNames[i]);
+	                }
+	                h.add(calendar, "Month_Names_EN", sjm.toString());
+	                } catch (Exception e) {
+	                h.add(calendar, "WeekdayOrMonthNames_Error", e.getMessage());
+	                }
+	                
+	                
+	                
+	       MbElement constants = calendar.createElementAsLastChild(MbElement.TYPE_NAME, "Constants", null);
+	        h.add(constants, "JANUARY", java.util.Calendar.JANUARY);
+	        h.add(constants, "FEBRUARY", java.util.Calendar.FEBRUARY);
+	        h.add(constants, "MARCH", java.util.Calendar.MARCH);
+	        h.add(constants, "APRIL", java.util.Calendar.APRIL);
+	        h.add(constants, "MAY", java.util.Calendar.MAY);
+	        h.add(constants, "JUNE", java.util.Calendar.JUNE);
+	        h.add(constants, "JULY", java.util.Calendar.JULY);
+	        h.add(constants, "AUGUST", java.util.Calendar.AUGUST);
+	        h.add(constants, "SEPTEMBER", java.util.Calendar.SEPTEMBER);
+	        h.add(constants, "OCTOBER", java.util.Calendar.OCTOBER);
+	        h.add(constants, "NOVEMBER", java.util.Calendar.NOVEMBER);
+	        h.add(constants, "DECEMBER", java.util.Calendar.DECEMBER);
+	        h.add(constants, "SUNDAY", java.util.Calendar.SUNDAY);
+	        h.add(constants, "MONDAY", java.util.Calendar.MONDAY);
+	        h.add(constants, "TUESDAY", java.util.Calendar.TUESDAY);
+	        h.add(constants, "WEDNESDAY", java.util.Calendar.WEDNESDAY);
+	        h.add(constants, "THURSDAY", java.util.Calendar.THURSDAY);
+	        h.add(constants, "FRIDAY", java.util.Calendar.FRIDAY);
+	        h.add(constants, "SATURDAY", java.util.Calendar.SATURDAY);
+	        h.add(constants, "AM", java.util.Calendar.AM);
+	        h.add(constants, "PM", java.util.Calendar.PM);
+	        h.add(constants, "HOUR", java.util.Calendar.HOUR);
+	        h.add(constants, "HOUR_OF_DAY", java.util.Calendar.HOUR_OF_DAY);
+	        h.add(constants, "MINUTE", java.util.Calendar.MINUTE);
+	        h.add(constants, "SECOND", java.util.Calendar.SECOND);
+	        h.add(constants, "MILLISECOND", java.util.Calendar.MILLISECOND);
+	        h.add(constants, "ZONE_OFFSET", java.util.Calendar.ZONE_OFFSET);
+	        h.add(constants, "DST_OFFSET", java.util.Calendar.DST_OFFSET);
+	        h.add(constants, "FIELD_COUNT", java.util.Calendar.FIELD_COUNT);    
+	        
+	     // Provide a short "Summary" element summarizing core fields
+	        MbElement summary = calendar.createElementAsLastChild(MbElement.TYPE_NAME, "Summary", null);
+	        h.add(summary, "Year", cal.get(java.util.Calendar.YEAR));
+	        h.add(summary, "Month", cal.get(java.util.Calendar.MONTH));
+	        h.add(summary, "DayOfMonth", cal.get(java.util.Calendar.DAY_OF_MONTH));
+	        h.add(summary, "TimeFormatted", sdf.format(cal.getTime()));
+	        
+	        
+			// End of user code
+			// ----------------------------------------------------------
+		} catch (MbException e) {
+			// Re-throw to allow Broker handling of MbException
+			throw e;
+		} catch (RuntimeException e) {
+			// Re-throw to allow Broker handling of RuntimeException
+			throw e;
+		} catch (Exception e) {
+			// Consider replacing Exception with type(s) thrown by user code
+			// Example handling ensures all exceptions are re-thrown to be handled in the flow
+			throw new MbUserException(this, "evaluate()", "", "", e.toString(), null);
+		}
+		
+		// The following should only be changed
+		// if not propagating message to the 'out' terminal
+		out.propagate(outAssembly);
+
+	}
+
+	/**
+	 * onPreSetupValidation() is called during the construction of the node
+	 * to allow the node configuration to be validated.  Updating the node
+	 * configuration or connecting to external resources should be avoided.
+	 *
+	 * @throws MbException
+	 */
+	@Override
+	public void onPreSetupValidation() throws MbException {
+	}
+
+	/**
+	 * onSetup() is called during the start of the message flow allowing
+	 * configuration to be read/cached, and endpoints to be registered.
+	 *
+	 * Calling getPolicy() within this method to retrieve a policy links this
+	 * node to the policy. If the policy is subsequently redeployed the message
+	 * flow will be torn down and reinitialized to it's state prior to the policy
+	 * redeploy.
+	 *
+	 * @throws MbException
+	 */
+	@Override
+	public void onSetup() throws MbException {
+	}
+
+	/**
+	 * onStart() is called as the message flow is started. The thread pool for
+	 * the message flow is running when this method is invoked.
+	 *
+	 * @throws MbException
+	 */
+	@Override
+	public void onStart() throws MbException {
+	}
+
+	/**
+	 * onStop() is called as the message flow is stopped. 
+	 *
+	 * The onStop method is called twice as a message flow is stopped. Initially
+	 * with a 'wait' value of false and subsequently with a 'wait' value of true.
+	 * Blocking operations should be avoided during the initial call. All thread
+	 * pools and external connections should be stopped by the completion of the
+	 * second call.
+	 *
+	 * @throws MbException
+	 */
+	@Override
+	public void onStop(boolean wait) throws MbException {
+	}
+
+	/**
+	 * onTearDown() is called to allow any cached data to be released and any
+	 * endpoints to be deregistered.
+	 *
+	 * @throws MbException
+	 */
+	@Override
+	public void onTearDown() throws MbException {
+	}
+
+}
