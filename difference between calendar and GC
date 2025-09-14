@@ -1,0 +1,65 @@
+Calendar (Abstract Class)
+
+Type: Abstract class (java.util.Calendar).
+
+Purpose: General framework for date/time calculations.
+
+Key point: Directly object create nahi kar sakte (new Calendar() not allowed). Hamesha Calendar.getInstance() use karna padta hai jo runtime pe ek subclass object return karega (mostly GregorianCalendar).
+
+Methods: Sab common date-time operations (set, add, roll, get, before, after, etc.).
+
+Locale / TimeZone aware: Lekin exact calculation implementation subclasses karte hain.
+GregorianCalendar (Concrete Subclass)
+
+Type: Concrete class (java.util.GregorianCalendar extends Calendar).
+
+Purpose: Default and most widely used implementation of Calendar.
+
+Specialization: Implements the Gregorian calendar system (jo aaj duniya bhar use hota hai).
+
+Extra features:
+
+Leap year calculation (isLeapYear(int year)).
+
+Exact rules for month lengths (Jan=31, Feb=28/29, etc.).
+
+Support for both Julian → Gregorian cutover (rarely used but supported in API).
+
+Methods Unique to GregorianCalendar
+boolean isLeapYear(int year)
+void setGregorianChange(Date date)
+Date getGregorianChange()
+void setWeekDate(int weekYear, int weekOfYear, int dayOfWeek)
+
+Reference type → Calendar
+
+Object type → GregorianCalendar
+
+
+Jab reference type Calendar hai → tu sirf wahi methods call kar paayega jo Calendar class me declare hain.
+Chahe andar ka actual object GregorianCalendar ho.
+
+Why Calendar doesn’t declare those methods?
+
+Reason simple hai bhai:
+
+Calendar ek abstract base class hai, jo general API define karti hai jo sab calendars (Gregorian, Buddhist, Japanese, etc.) support karte hai
+
+Calendar.getInstance() → runtime pe mostly GregorianCalendar object deta hai.
+
+Lekin tu usko Calendar reference se hold karta hai → toh sirf Calendar ke declared methods hi dikhenge.
+
+Extra methods (isLeapYear, getGregorianChange, setGregorianChange) tabhi access honge jab tu reference ko explicitly GregorianCalendar bana de ya downcast kare.
+Calendar abstract hai kyunki wo ek base framework hai jo multiple calendar systems ko support kare.
+
+Reference Calendar ka fayda: generic code likh sakte ho jo future me kisi bhi calendar system pe kaam kare.
+
+GregorianCalendar reference ka fayda: extra Gregorian-specific methods milte hain.
+
+Runtime pe Calendar → system ke locale/region ke hisaab se GregorianCalendar, BuddhistCalendar, ya JapaneseImperialCalendar object hold kar sakta hai.
+
+Calendar ref + Gregorian obj → Flexible, future proof, generalized, supports polymorphism (best jab common functionality use karni ho).
+
+Gregorian ref + Gregorian obj → Sirf tab use kar jab tujhe Gregorian-specific methods chahiye (leap year, gregorian change date, etc.).
+
+Agar dono same kar de (Gregorian ref + Gregorian obj) → flexibility chali jaati hai, code ek hi calendar system tak limited ho jaata hai.
